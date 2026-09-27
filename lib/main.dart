@@ -119,6 +119,10 @@ class SlotMapScreen extends StatelessWidget {
           }
 
           return InteractiveViewer(
+            constrained: false,
+            boundaryMargin: const EdgeInsets.all(200),
+            minScale: 0.3,
+            maxScale: 4.0,
             child: SizedBox(
               width: (maxX + 1) * cellSize + 40,
               height: (maxY + 1) * cellSize + 40,
@@ -157,8 +161,39 @@ class SlotMapScreen extends StatelessWidget {
   }
 }
 
+Future<void> _confirmAndSignOut(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Sign Out'),
+      content: const Text('Are you sure you want to sign out?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('Sign Out'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed == true) {
+    await FirebaseAuth.instance.signOut();
+    if (context.mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    }
+  }
+}
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+  
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -176,6 +211,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   String? _errorMessage;
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   Future<void> _signup() async {
     setState(() {
@@ -223,8 +259,18 @@ class _SignupScreenState extends State<SignupScreen> {
             const SizedBox(height: 12),
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
+              obscureText: _obscurePassword,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                suffixIcon: IconButton(
+                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             if (_errorMessage != null)
@@ -248,6 +294,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   String? _errorMessage;
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
 Future<void> _login() async {
   setState(() {
@@ -310,8 +357,18 @@ Future<void> _login() async {
             const SizedBox(height: 12),
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
+              obscureText: _obscurePassword,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                suffixIcon: IconButton(
+                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             if (_errorMessage != null)
@@ -358,6 +415,11 @@ class AdminHomeScreen extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const GateStatusScreen()),
             );
           },
+        ),
+        IconButton(
+          icon: const Icon(Icons.logout),
+          tooltip: 'Sign out',
+          onPressed: () => _confirmAndSignOut(context),
         ),
       ],
     ),
@@ -623,6 +685,11 @@ class UserHomeScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const SearchAllSlotsScreen()),
               );
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sign out',
+            onPressed: () => _confirmAndSignOut(context),
           ),
         ],
       ),
