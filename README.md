@@ -84,20 +84,6 @@ One ESP32 device controls all 4 sensor-backed slots at E Building. It:
 
 A simulation sketch exists that randomly toggles the 4 sensor slots and the gate status, useful for testing the app end-to-end before wiring up real sensors.
 
-## Status
-
-- [x] Authentication (login, signup, sign-out with confirmation)
-- [x] Role-based routing (admin / user)
-- [x] Location list with live empty counts
-- [x] Visual slot map (all 4 shapes)
-- [x] Search All Lots feature
-- [x] Admin dashboard with demo slot toggles
-- [x] Gate status screen
-- [x] Security rules (role-based read/write access)
-- [ ] Real ESP32 hardware connected (simulation sketch ready)
-- [ ] Sign in with Google (optional)
-- [ ] Full UI/visual polish pass
-
 ## Getting Started
 
 1. Clone this repository
